@@ -32,7 +32,7 @@
         "publicIPAddressType": "Dynamic",
         "DpublicIPAddressName": "[concat('dpubip', variables('uniqueNameSuffix'))]",
         "DvmName": "mydevicevm",
-        "DvmSize": "Standard_D4_v2",
+        "DvmSize": "Standard_D4S_v3",
         "DvirtualNetworkName": "[concat('dvnet', variables('uniqueNameSuffix'))]",
         "DvnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('DvirtualNetworkName'))]",
         "DsubnetRef": "[concat(variables('DvnetID'),'/subnets/',variables('subnetName'))]"

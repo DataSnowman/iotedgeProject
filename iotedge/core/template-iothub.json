@@ -1,12 +1,12 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "variables": {
-        "location": "[resourceGroup().location]",
-        "uniqueNameSuffix": "[toLower(uniqueString(resourceGroup().id,subscription().subscriptionId))]",
-        "hubName": "[concat('iothub', variables('uniqueNameSuffix'))]"
-    },
-    "resources": [
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "uniqueNameSuffix": "[toLower(uniqueString(resourceGroup().id,subscription().subscriptionId))]",
+    "hubName": "[concat('iothub', variables('uniqueNameSuffix'))]"
+  },
+  "resources": [
     {
       "apiVersion": "2016-02-03",
       "type": "Microsoft.Devices/IotHubs",
@@ -37,11 +37,11 @@
         "[concat('Microsoft.Devices/Iothubs/', variables('hubName'))]"
       ]
     }
-    ],
-    "outputs": {
-      "hubKeys": {
-        "value": "[listKeys(resourceId('Microsoft.Devices/IotHubs', variables('hubName')), '2016-02-03')]",
-        "type": "object"
-      }
+  ],
+  "outputs": {
+    "hubKeys": {
+      "value": "[listKeys(resourceId('Microsoft.Devices/IotHubs', variables('hubName')), '2016-02-03')]",
+      "type": "object"
     }
   }
+}
