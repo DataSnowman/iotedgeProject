@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Template>
+  <Title>IoT Edge</Title>
+  <Owner displayname="Darwin Schweitzer" email="darsch@microsoft.com"/>
+  <ImageUrl>{PatternAssetBaseUrl}/artificial-intelli.png</ImageUrl>
+  <Description>Learn how to use Azure IoT Edge</Description>
+  <Summary src="Summary.md" format="markdown"/>
+  <EstimatedTime>5 Minutes</EstimatedTime>
+  <EstimatedCost daily="$118.67" url="https://azure.github.io/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/solution-prices#spark-with-kafka-preview-on-hdinsight" />
+    <Ingredients>
+    <Ingredient>VirtualMachine</Ingredient>
+    <Ingredient>MachineLearning</Ingredient>
+  </Ingredients>
+  <ProvisioningSteps>
+    <Manual parameterSource="template-parameters.json" title="Login for resources" >
+      <Parameters>
+        <Parameter name="baseUrl" hidden="true">
+          <DefaultValue>{PatternAssetBaseUrl}</DefaultValue>
+        </Parameter>
+        <Credential type="windowsvm,linuxvm" username="userName" password="password" />
+      </Parameters>
+    </Manual>
+    <ArmDeployment source="template-ldevice-ciqs.json" title="Creating Azure IoT Edge Device" autoResolveParameters="true" />
+    <ArmDeployment source="template-iothub.json" title="Creating Azure IoT Hub" autoResolveParameters="true" />
+    <Manual title="Done">
+      <Instructions src="Instructions.md" format="markdown" />
+    </Manual>
+  </ProvisioningSteps>
+</Template>

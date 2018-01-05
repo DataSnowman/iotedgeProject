@@ -1,0 +1,1 @@
+This pattern requires **20** HDInsight cores to operate. Ensure adequate cores are available before provisioning. Refer [here](https://azure.microsoft.com/en-us/pricing/details/hdinsight/) for details on HDInsight Pricing.

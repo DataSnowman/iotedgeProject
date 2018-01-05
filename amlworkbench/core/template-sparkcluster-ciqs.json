@@ -1,0 +1,155 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "baseUrl": {
+            "type": "string"
+        },
+        "userName": {
+            "type": "string",
+            "metadata": {
+                "description": "These credentials can be used to submit jobs to the cluster and to log into cluster dashboards."
+            }
+        },
+        "password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+            }
+        }
+    },
+  "variables": {
+    "namePrefix": "[resourceGroup().name]",
+    "uniqueNamePrefix": "[toLower(concat(resourceGroup().name, uniqueString(subscription().subscriptionId)))]",
+    "location": "[resourceGroup().location]",
+    "defaultApiVersion": "2015-05-01-preview",
+    "clusterApiVersion": "2015-03-01-preview",
+    "headnodeCount": "2",
+    "clusterWorkerNodeCount": "3",
+    "clusterVNetName": "[concat(variables('uniqueNamePrefix'),'-vnet')]",
+    "clusterStorageAccountName": "[concat(variables('uniqueNamePrefix'),'cl')]",
+    "sparkClusterName": "[concat('spark-', variables('uniqueNamePrefix'))]",
+    "clusterVNetAddressSpace": "10.0.0.0/16",
+    "clusterVNetSubnetName": "default",
+    "clusterVNetSubnetAddressRange": "10.0.0.0/24"
+  },
+  "resources": [
+    {
+      "name": "[variables('clusterVNetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[variables('location')]",
+      "apiVersion": "[variables('defaultApiVersion')]",
+      "dependsOn": [ ],
+      "tags": { },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('clusterVNetAddressSpace')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('clusterVNetSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('clusterVNetSubnetAddressRange')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('clusterStorageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[variables('location')]",
+      "apiVersion": "[variables('defaultApiVersion')]",
+      "dependsOn": [ ],
+      "tags": { },
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "name": "[variables('sparkClusterName')]",
+      "type": "Microsoft.HDInsight/clusters",
+      "location": "[variables('location')]",
+      "apiVersion": "[variables('clusterApiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/',variables('clusterStorageAccountName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/',variables('clusterVNetName'))]"
+      ],
+      "tags": { },
+      "properties": {
+        "clusterVersion": "3.6",
+        "osType": "Linux",
+        "clusterDefinition": {
+          "kind": "Spark",
+          "configurations": {
+            "gateway": {
+              "restAuthCredential.isEnabled": true,
+              "restAuthCredential.username": "[parameters('userName')]",
+              "restAuthCredential.password": "[parameters('password')]"
+            }
+          }
+        },
+        "storageProfile": {
+          "storageaccounts": [
+            {
+              "name": "[concat(variables('clusterStorageAccountName'),'.blob.core.windows.net')]",
+              "isDefault": true,
+              "container": "[variables('sparkClusterName')]",
+              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('clusterStorageAccountName')), variables('defaultApiVersion')).key1]"
+            }
+          ]
+        },
+        "computeProfile": {
+          "roles": [
+            {
+              "name": "headnode",
+              "targetInstanceCount": "[variables('headnodeCount')]",
+              "hardwareProfile": {
+                "vmSize": "Standard_A3"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('userName')]",
+                  "password": "[parameters('password')]"
+                }
+              },
+              "virtualNetworkProfile": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('clusterVNetName'))]",
+                "subnet": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('clusterVNetName')), '/subnets/', variables('clusterVNetSubnetName'))]"
+              }
+            },
+            {
+              "name": "workernode",
+              "targetInstanceCount": "[variables('clusterWorkerNodeCount')]",
+              "hardwareProfile": {
+                "vmSize": "Standard_A3"
+              },
+              "osProfile": {
+                "linuxOperatingSystemProfile": {
+                  "username": "[parameters('userName')]",
+                  "password": "[parameters('password')]"
+                }
+              },
+              "virtualNetworkProfile": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('clusterVNetName'))]",
+                "subnet": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('clusterVNetName')), '/subnets/', variables('clusterVNetSubnetName'))]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+    "outputs": {
+        "vnet": {
+            "type": "object",
+            "value": "[reference(resourceId('Microsoft.Network/virtualNetworks',variables('clusterVNetName')))]"
+        },
+        "sparkClusterName": {
+            "type": "string",
+            "value": "[variables('sparkClusterName')]"
+        }
+    }
+}

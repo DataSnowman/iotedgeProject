@@ -1,0 +1,180 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "userName": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the Virtual Machine."
+            }
+        },
+        "password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        }
+    },
+    "variables": {
+        "uniqueNameSuffix": "[toLower(uniqueString(resourceGroup().id,subscription().subscriptionId))]",
+        "location": "[resourceGroup().location]",
+        "publicIPAddressesVersion": "2015-06-15",
+        "virtualNetworksVersion": "2015-06-15",
+        "networkInterfacesVersion": "2015-06-15",
+        "numberOfInstances": 1,
+        "imagePublisher": "microsoft-ads",
+        "LimageOffer": "linux-data-science-vm-ubuntu",
+        "sku": "linuxdsvmubuntu",
+        "LnicName": "[concat('lvmnic', variables('uniqueNameSuffix'))]",
+        "LaddressPrefix": "11.0.0.0/16",
+        "subnetName": "Subnet",
+        "LsubnetPrefix": "11.0.0.0/24",
+        "publicIPAddressType": "Dynamic",
+        "LpublicIPAddressName": "[concat('lpubip', variables('uniqueNameSuffix'))]",
+        "LvmName": "mydockervm",
+        "LvmSize": "Standard_D4_v2",
+        "LvirtualNetworkName": "[concat('lvnet', variables('uniqueNameSuffix'))]",
+        "LvnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('LvirtualNetworkName'))]",
+        "LsubnetRef": "[concat(variables('LvnetID'),'/subnets/',variables('subnetName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "[variables('publicIPAddressesVersion')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[concat(variables('LpublicIPAddressName'), copyindex())]",
+            "location": "[variables('location')]",
+            "copy": {
+                "name": "publicIPLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+                "dnsSettings": {
+                    "domainNameLabel": "[concat(variables('LpublicIPAddressName'), copyindex())]"
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('virtualNetworksVersion')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('LvirtualNetworkName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('LaddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('LsubnetPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[variables('networkInterfacesVersion')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[concat(variables('LnicName'), copyindex())]",
+            "location": "[variables('location')]",
+            "copy": {
+                "name": "nicLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', concat(variables('LpublicIPAddressName'),copyindex()))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('LvirtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('LpublicIPAddressName'),copyindex()))]"
+                            },
+                            "subnet": {
+                                "id": "[variables('LsubnetRef')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2016-04-30-preview",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[concat(variables('LvmName'), copyIndex())]",
+            "location": "[variables('location')]",
+            "copy": {
+                "name": "virtualMachineLoop",
+                "count": "[variables('numberOfInstances')]"
+            },
+            "plan": {                
+                "name": "[variables('sku')]",
+                "publisher": "[variables('imagePublisher')]",
+                "product": "[variables('LimageOffer')]"
+            },
+            "tags": {
+                "Application": "DataScience"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('LnicName'), copyindex())]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('LvmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[concat(variables('LvmName'), copyIndex())]",
+                    "adminUsername": "[parameters('userName')]",
+                    "adminPassword": "[parameters('password')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('imagePublisher')]",
+                        "offer": "[variables('LimageOffer')]",
+                        "sku": "[variables('sku')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat(variables('LvmName'), 'osdisk', copyIndex())]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name": "[concat(variables('LvmName'), 'data', copyIndex())]",
+                            "createOption": "FromImage",
+                            "lun": 0
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('LnicName'), copyindex()))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "LfirstDataScienceVmUrl": { "type": "string", "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('LvmName'), '0')]" },
+        "LnumInstances": { "type": "string", "value": "[string(variables('numberOfInstances'))]" },
+        "LvmName": { "type": "string", "value": "[variables('LvmName')]" },
+        "LadminUsername": { "type": "string", "value": "[parameters('userName')]" },
+        "LdnsName": {"type": "string", "value": "[concat(variables('LpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]"},
+        "LsshConnection": { "type": "string", "value": "[concat('ssh ', parameters('userName'), '@', variables('LpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]" }
+    }
+}

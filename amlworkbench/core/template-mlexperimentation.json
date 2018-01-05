@@ -1,0 +1,55 @@
+{
+    "contentVersion": "1.0.0.0",
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "parameters": {
+    },
+    "variables": {
+        "mlexpVersion": "2017-05-01-preview",
+        "namePrefix": "[resourceGroup().name]",
+        "uniqueNamePrefix": "[toLower(concat(resourceGroup().name, uniqueString(subscription().subscriptionId)))]",
+        "location": "[resourceGroup().location]",
+        "mlexpAccountName": "[concat(variables('uniqueNamePrefix'),'ml')]",
+        "storageAccountSku": "Standard_LRS",
+        "stgResourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('mlexpAccountName'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('mlexpAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[variables('location')]",
+            "apiVersion": "2016-12-01",
+            "tags": {
+                "mlteamAccount": "[variables('mlexpAccountName')]"
+            },
+            "sku": {
+                "name": "[variables('storageAccountSku')]"
+            },
+            "kind": "Storage",
+            "properties": {
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('mlexpVersion')]",
+            "type": "Microsoft.MachineLearningExperimentation/accounts",
+            "name": "[variables('mlexpAccountName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('mlexpAccountName'))]"
+            ],
+            "properties": {
+                "storageAccount": {
+                    "storageAccountId": "[variables('stgResourceId')]",
+                    "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('mlexpAccountName')), '2016-12-01').keys[0].value]"
+                }
+            }
+        }
+    ]
+}

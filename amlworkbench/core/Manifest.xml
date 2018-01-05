@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Template>
+  <Title>Azure Machine Learning Workbench</Title>
+  <Owner displayname="Darwin Schweitzer" email="darsch@microsoft.com"/>
+  <ImageUrl>{PatternAssetBaseUrl}/amlwb.png</ImageUrl>
+  <Description>Version 3.4 Learn how to use Azure Machine Learning Workbench on the Windows DSVM using a remote Docker container on Ubuntu DSVM and/or using Spark on Azure HDInsight.</Description>
+  <Summary src="Summary.md" format="markdown"/>
+  <Prerequisites src="Prereqs.md" format="markdown"/>
+  <EstimatedTime>25 Minutes</EstimatedTime>
+  <EstimatedCost daily="$118.67" url="https://azure.github.io/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/solution-prices#spark-with-kafka-preview-on-hdinsight" />
+    <Ingredients>
+    <Ingredient>HDInsight</Ingredient>
+    <Ingredient>StorageAccount</Ingredient>
+  </Ingredients>
+  <ProvisioningSteps>
+    <Manual parameterSource="template-sparkcluster-ciqs.json" title="Login for resources" >
+      <Parameters>
+        <Parameter name="baseUrl" hidden="true">
+          <DefaultValue>{PatternAssetBaseUrl}</DefaultValue>
+        </Parameter>
+        <Credential type="windowsvm,linuxvm,hdi" username="userName" password="password" />
+      </Parameters>
+    </Manual>
+    <ArmDeployment source="template-mlexperimentation.json" title="Creating ML experimentation account" autoResolveParameters="true" />
+    <ArmDeployment source="template-wdsvm-ciqs.json" title="Creating Windows Data Science VM" autoResolveParameters="true" />
+    <Manual title="Install AML Workbench on Window DSVM">
+      <Instructions src="Wdsvm.md" format="markdown" />
+    </Manual>
+    <ArmDeployment source="template-ldsvm-ciqs.json" title="Creating Linux Data Science VM" autoResolveParameters="true" />
+    <Manual title="Install Linux DSVM for remote Docker container">
+      <Instructions src="Ldsvm.md" format="markdown" />
+    </Manual>
+    <ArmDeployment source="template-sparkcluster-ciqs.json" title="Creating Spark resources" autoResolveParameters="true" />
+    <Function name="CopyScripts" title="Copy Jupyter Notebook Scripts" >
+      <Parameters>
+        <Parameter hidden="true" name="StorageName" defaultValue="{Outputs.StorageAccountName}"  />
+        <Parameter hidden="true" name="StorageKey" defaultValue="{Outputs.StorageAccountKey}" />
+      </Parameters>
+    </Function>
+    <Manual title="Done">
+      <Instructions src="Instructions.md" format="markdown" />
+    </Manual>
+  </ProvisioningSteps>
+</Template>

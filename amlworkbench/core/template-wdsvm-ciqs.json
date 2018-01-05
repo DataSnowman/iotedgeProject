@@ -1,0 +1,193 @@
+﻿{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "userName": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the Data Science Virtual Machine"
+            }
+        },
+        "password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Data Science Virtual Machine"
+            }
+        }
+    },
+    "variables": {
+        "namePrefix": "[resourceGroup().name]",
+        "uniqueNamePrefix": "[toLower(concat(resourceGroup().name, uniqueString(subscription().subscriptionId)))]",
+        "uniqueNameSuffix": "[toLower(uniqueString(resourceGroup().id,subscription().subscriptionId))]",
+        "location": "[resourceGroup().location]",
+        "imagePublisher": "microsoft-ads",
+        "WimageOffer": "windows-data-science-vm",
+        "WOSDiskName": "osdiskforwindowssimple",
+        "windowsOSVersion": "windows2016",
+        "WnicName": "[concat('wvmnic', variables('uniqueNameSuffix'))]",
+        "WaddressPrefix": "10.0.0.0/16",
+        "subnetName": "Subnet",
+        "WsubnetPrefix": "10.0.0.0/24",
+        "storageAccountType": "Standard_LRS",
+        "storageVersion": "2015-06-15",
+        "publicIPAddressesVersion": "2015-06-15",
+        "virtualNetworksVersion": "2015-06-15",
+        "networkInterfacesVersion": "2015-06-15",
+        "virtualMachinesVersion": "2016-04-30-preview",
+        "storageAccountName": "[variables('uniqueNameSuffix')]",
+        "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "publicIPAddressType": "Dynamic",
+        "WpublicIPAddressName": "[concat('wpubip', variables('uniqueNameSuffix'))]",
+        "WdnsNameForPublicIP": "[concat('wdns', variables('uniqueNameSuffix'))]", 
+        "vmStorageAccountContainerName": "vhds",
+        "WvmName": "amlworkbench",
+        "WvmSize": "Standard_D3_v2",
+        "WvirtualNetworkName": "[concat('wvnet', variables('uniqueNameSuffix'))]",
+        "WvnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('WvirtualNetworkName'))]",
+        "WsubnetRef": "[concat(variables('WvnetID'),'/subnets/',variables('subnetName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "[variables('storageVersion')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "accountType": "[variables('storageAccountType')]"
+            }
+        },
+        {
+            "apiVersion": "[variables('publicIPAddressesVersion')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('WpublicIPAddressName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('WdnsNameForPublicIP')]"
+                }
+            }
+        },
+        {
+            "apiVersion": "[variables('virtualNetworksVersion')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('WvirtualNetworkName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('WaddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('WsubnetPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[variables('networkInterfacesVersion')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('WnicName')]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('WpublicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('WvirtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('WpublicIPAddressName'))]"
+                            },
+                            "subnet": {
+                                "id": "[variables('WsubnetRef')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[variables('virtualMachinesVersion')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('WvmName')]",
+            "location": "[variables('location')]",
+            "plan": {
+                "name": "windows2016",
+                "publisher": "microsoft-ads",
+                "product": "windows-data-science-vm"
+            },
+            "tags": {
+                "Application": "DataScience"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces/', variables('WnicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('WvmSize')]"
+                },
+                "osProfile": {
+                    "computername": "[variables('WvmName')]",
+                    "adminUsername": "[parameters('userName')]",
+                    "adminPassword": "[parameters('password')]",
+                    "windowsConfiguration": {
+                        "provisionVmAgent": "true"
+                    }    
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('imagePublisher')]",
+                        "offer": "[variables('WimageOffer')]",
+                        "sku": "[variables('windowsOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "osdisk",
+                        "vhd": {
+                            "uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/',variables('WOSDiskName'),'.vhd')]"
+                        },
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('WnicName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": "true",
+                        "storageUri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+      "dataScienceVmUrl": {
+        "type": "string",
+        "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('WvmName'))]"
+      },
+      "WvmName": {
+        "type": "string",
+        "value": "[variables('WvmName')]"
+      },
+      "WadminUsername": {
+            "type": "string",
+            "value": "[parameters('userName')]"
+      }
+    }
+}
