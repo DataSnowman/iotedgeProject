@@ -20,8 +20,15 @@
         <Credential type="windowsvm,linuxvm" username="userName" password="password" />
       </Parameters>
     </Manual>
-    <ArmDeployment source="template-ldevice-ciqs.json" title="Creating Azure IoT Edge Device" autoResolveParameters="true" />
-    <ArmDeployment source="template-iothub.json" title="Creating Azure IoT Hub" autoResolveParameters="true" />
+    <ArmDeployment source="template-iothub.json" title="Creating an Azure IoT Hub" autoResolveParameters="true" />
+    <Manual title="Install and start the IoT Edge runtime">
+      <Instructions src="iotedgert.md" format="markdown" />
+    </Manual>
+    <ArmDeployment source="template-ldeviceext-ciqs.json" title="Install and start the IoT Edge runtime" autoResolveParameters="true">
+      <Parameters>
+        <Parameter name="deviceconnectionstring" description="IoT Edge Device Connection string--primarykey" type="string" />
+      </Parameters>
+    </ArmDeployment>
     <ArmDeployment source="template-tsi.json" title="Creating Time Series Insights Environment" autoResolveParameters="true" />
     <Manual title="Done">
       <Instructions src="Instructions.md" format="markdown" />

@@ -13,7 +13,13 @@
             "metadata": {
                 "description": "Password for the Virtual Machine."
             }
-        }
+        },
+        "deviceconnectionstring": {
+            "type": "string",
+            "metadata": {
+                "description": "IoT Edge Device Connection String."
+            }
+        }	
     },
     "variables": {
         "uniqueNameSuffix": "[toLower(uniqueString(resourceGroup().id,subscription().subscriptionId))]",
@@ -35,7 +41,8 @@
         "DvmSize": "Standard_D4S_v3",
         "DvirtualNetworkName": "[concat('dvnet', variables('uniqueNameSuffix'))]",
         "DvnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('DvirtualNetworkName'))]",
-        "DsubnetRef": "[concat(variables('DvnetID'),'/subnets/',variables('subnetName'))]"
+        "DsubnetRef": "[concat(variables('DvnetID'),'/subnets/',variables('subnetName'))]",
+        "fileUris": "https://raw.githubusercontent.com/Azure/DataScienceVM/master/Extensions/IoTEdge/install.sh"
     },
     "resources": [
         {
@@ -166,7 +173,30 @@
                         "enabled": false
                     }
                 }
-            }
+            },
+            "resources": [
+                {
+                 "type": "extensions",
+                 "name": "iotEdge",
+                 "apiVersion": "2015-06-15",
+                 "location": "[variables('location')]",
+                 "dependsOn": [
+                   "[concat('Microsoft.Compute/virtualMachines/', variables('DvmName'), copyIndex())]"
+                 ],
+                 "properties": {
+                   "publisher": "Microsoft.OSTCExtensions",
+                   "type": "CustomScriptForLinux",
+                   "typeHandlerVersion": "1.4",
+                   "autoUpgradeMinorVersion": true,
+                   "settings": {
+                     "fileUris": "[split(variables('fileUris'), ' ')]"
+                   },
+             "protectedSettings": {
+                    "commandToExecute": "[concat('bash install.sh \"', parameters('deviceconnectionstring'), '\" ', parameters('userName'))]"
+             }        
+                 }
+                }
+            ]	
         }
     ],
     "outputs": {
