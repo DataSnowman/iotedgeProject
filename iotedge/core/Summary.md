@@ -1,25 +1,16 @@
-﻿This Tutorial helps you learn how to use Azure Machine Learning Workbench on the Windows DSVM using a remote Docker container on Ubuntu DSVM and/or using Spark on Azure HDInsight.
+﻿# Welcome to the AI Quickstart for Azure IoT Edge
 
-While you can create an Azure virtual network, Kafka, and Spark clusters manually, it's easier to use a Cortana Intelligence Solution Template which deploys the clusters using an Azure Resource Manager template and Azure Functions. 
-Use the following steps to deploy an Azure virtual network, Kafka, and Spark clusters to your Azure subscription.
+The integration of Azure Machine Learning and Azure IoT Edge enables organizations and developers to apply AI and ML to data that can’t make it to the cloud due to data sovereignty, privacy, and/or bandwidth issues. All models created using Azure Machine Learning can now be deployed to IoT gateways and devices with the Azure IoT Edge runtime. Models are operationalized as containers and can run on many types of hardware, from very small devices all the way to powerful servers.
 
-The tutorial involves the following steps:
+We're releasing this quickstart to accompany the toolkit to help get you started with AI and Azure IoT Edge. The quickstart and toolkit will show you how to package deep learning models in Azure IoT Edge-compatible Docker containers and expose those models as REST APIs. We've included examples to help get you started, but the possibilities are endless. We'll be adding new examples and tools often. The models can be used as-is or and customized to better meet your specific needs and use cases. 
 
-1. Deploy the Spark with Kafka (preview) on HDInsight tutorial which creates the following resources:
-	* Kafka on HDInsight 3.5 cluster
-	* Spark on HDInsight 3.6 cluster
-	* Azure Virtual Network, which contains the HDInsight clusters
-	
-2. Learn how to use Spark Structured Streaming to read data from Apache Kafka on Azure HDInsight.
-Spark structured streaming is a stream processing engine built on Spark SQL. It allows you to express streaming computations the same as batch computation on static data. For more information on Structured Streaming, see the Structured Streaming Programming Guide [Alpha] at Apache.org.
+Please ask any questions on our [forum](https://social.msdn.microsoft.com/forums/azure/en-US/home?forum=MachineLearning).  We welcome your feedback and contributions and look forward to building together.
 
-	[Use Spark Structured Streaming with Kafka (preview) on HDInsight](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-kafka-spark-structured-streaming#get-the-kafka-brokers)
+## Concepts
+* [Azure Machine Learning](https://docs.microsoft.com/en-us/azure/machine-learning/preview/) is designed for data scientists to build, deploy, manage, and monitor models at any scale
+* [Azure IoT Edge](https://aka.ms/azure-iot-edge-doc) moves cloud analytics and custom business logic to devices as an Internet of Things (IoT) service that builds on top of IoT Hub
+* [AI Toolkit for Azure IoT Edge](https://github.com/Azure/ai-toolkit-iot-edge) is an evolving set of scripts, sample code, and tutorials that enable you to easily set up a test environment and run AI and ML on an edge device
 
-3. Learn how to use Spark Apache Spark to stream data into or out of Apache Kafka on HDInsight using DStreams. This example uses a Jupyter notebook that runs on the Spark cluster.
-
-	[Apache Spark streaming (DStream) example with Kafka (preview) on HDInsight](https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-apache-spark-with-kafka#a-idkafkahostsakafka-host-information)
-
-## Architecure
-[![Solution Diagram]({PatternAssetBaseUrl}/amlwbdflows.png)]({PatternAssetBaseUrl}/amlwbdflows.png)
-
-[Apache Hadoop®](http://hadoop.apache.org/) and associated open source project names are trademarks of [The Apache Software Foundation](http://apache.org/).
+# Quickstart
+## Image processing using AI on the edge
+Deploying this quickstart sets up the Azure resources to meet many use cases.  One use case for edge devices is image processing and object classification.  For example, images taken by cameras of products on an assembly line in a factory may be analyzed for manufacturing defects without having to send the images to the cloud.  To simplify this problem for the tutorial, we will create and deploy a model that will take in an image of a handwritten digit and predict what that number is.  We will use the well-known [MNIST](http://yann.lecun.com/exdb/mnist/) data set and a pre-trained [TensorFlow](https://www.tensorflow.org/) model.

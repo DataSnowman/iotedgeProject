@@ -6,7 +6,7 @@
   <Description>Learn how to use Azure IoT Edge</Description>
   <Summary src="Summary.md" format="markdown"/>
   <EstimatedTime>5 Minutes</EstimatedTime>
-  <EstimatedCost daily="$118.67" url="https://azure.github.io/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/solution-prices#spark-with-kafka-preview-on-hdinsight" />
+  <EstimatedCost daily="$tbd" url="https://azure.github.io/Azure-CloudIntelligence-SolutionAuthoringWorkspace/solution-prices" />
     <Ingredients>
     <Ingredient>VirtualMachine</Ingredient>
     <Ingredient>MachineLearning</Ingredient>
@@ -21,10 +21,10 @@
       </Parameters>
     </Manual>
     <ArmDeployment source="template-iothub.json" title="Creating an Azure IoT Hub" autoResolveParameters="true" />
-    <Manual title="Install and start the IoT Edge runtime">
+    <Manual title="Enter IoT Edge Device Connection string to install and start the IoT Edge runtime">
       <Instructions src="iotedgert.md" format="markdown" />
     </Manual>
-    <ArmDeployment source="template-ldeviceext-ciqs.json" title="Install and start the IoT Edge runtime" autoResolveParameters="true">
+    <ArmDeployment source="template-ldeviceext-ciqs.json" title="Installing and starting the IoT Edge runtime" autoResolveParameters="true">
       <Parameters>
         <Parameter name="deviceconnectionstring" description="IoT Edge Device Connection string--primarykey" type="string" />
       </Parameters>
