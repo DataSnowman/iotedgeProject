@@ -14,3 +14,6 @@ Please ask any questions on our [forum](https://social.msdn.microsoft.com/forums
 # Quickstart
 ## Image processing using AI on the edge
 Deploying this quickstart sets up the Azure resources to meet many use cases.  One use case for edge devices is image processing and object classification.  For example, images taken by cameras of products on an assembly line in a factory may be analyzed for manufacturing defects without having to send the images to the cloud.  To simplify this problem for the tutorial, we will create and deploy a model that will take in an image of a handwritten digit and predict what that number is.  We will use the well-known [MNIST](http://yann.lecun.com/exdb/mnist/) data set and a pre-trained [TensorFlow](https://www.tensorflow.org/) model.
+
+## Azure environment set up
+If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.

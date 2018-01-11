@@ -200,11 +200,11 @@
         }
     ],
     "outputs": {
-        "DfirstDeviceVmUrl": { "type": "string", "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('DvmName'), '0')]" },
-        "DnumInstances": { "type": "string", "value": "[string(variables('numberOfInstances'))]" },
-        "DvmName": { "type": "string", "value": "[variables('DvmName')]" },
-        "DadminUsername": { "type": "string", "value": "[parameters('userName')]" },
-        "DdnsName": {"type": "string", "value": "[concat(variables('DpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]"},
-        "DsshConnection": { "type": "string", "value": "[concat('ssh ', parameters('userName'), '@', variables('DpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]" }
+        "dfirstDeviceVmUrl": { "type": "string", "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('DvmName'), '0')]" },
+        "dnumInstances": { "type": "string", "value": "[string(variables('numberOfInstances'))]" },
+        "dvmName": { "type": "string", "value": "[variables('DvmName')]" },
+        "dadminUsername": { "type": "string", "value": "[parameters('userName')]" },
+        "ddnsName": {"type": "string", "value": "[concat(variables('DpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]"},
+        "dsshConnection": { "type": "string", "value": "[concat('ssh ', parameters('userName'), '@', variables('DpublicIPAddressName'), '0.', variables('location'), '.cloudapp.azure.com')]" }
     }
 }

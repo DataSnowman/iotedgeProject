@@ -25,9 +25,7 @@
     }
 ],
     "outputs": {
-        "test": {
-        "type": "string",
-        "value": "test"
-        }
+        "dataAccessPaneUrl": { "type": "string", "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.TimeSeriesInsights/environments/', variables('environmentName'),'/access')]" },
+        "eventSourceUrl": { "type": "string", "value": "[concat('https://portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.TimeSeriesInsights/environments/', variables('environmentName'),'/eventSources')]" }
     }
 }
