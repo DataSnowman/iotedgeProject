@@ -12,6 +12,5 @@ Create a device identity for your simulated device so that it can communicate wi
 1. Give your simulated device a unique device ID.
 1. Select **Save** to add your device.
 1. Select your new device from the list of devices.
-1. Copy the value for **Connection string--primary key**
-1. Click Next below
-1. We the Parameter comes up paste the **Connection string--primary key** and click Next
+1. Copy the value for **Connection string--primary key**.
+1. Paste into the **IoT Edge Device Connection string--primary key** parameter below and click Next.

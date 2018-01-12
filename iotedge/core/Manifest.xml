@@ -23,12 +23,11 @@
     <ArmDeployment source="template-iothub.json" title="Creating an Azure IoT Hub" autoResolveParameters="true" />
     <Manual title="Enter IoT Edge Device Connection string to install and start the IoT Edge runtime">
       <Instructions src="iotedgert.md" format="markdown" />
-    </Manual>
-    <ArmDeployment source="template-ldeviceext-ciqs.json" title="Installing and starting the IoT Edge runtime" autoResolveParameters="true">
       <Parameters>
         <Parameter name="deviceconnectionstring" description="IoT Edge Device Connection string--primarykey" type="string" />
       </Parameters>
-    </ArmDeployment>
+    </Manual>
+    <ArmDeployment source="template-ldeviceext-ciqs.json" title="Installing and starting the IoT Edge runtime" autoResolveParameters="true" />
     <ArmDeployment source="template-tsi.json" title="Creating Time Series Insights Environment" autoResolveParameters="true" />
     <Manual title="Done">
       <Instructions src="Instructions.md" format="markdown" />
