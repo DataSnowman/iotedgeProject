@@ -1,4 +1,4 @@
-﻿# Welcome to the AI Solution Template for Azure IoT Edge
+﻿# Welcome to the Azure Machine Learning and IoT Edge Solution Template
 
 The integration of Azure Machine Learning and Azure IoT Edge enables organizations and developers to apply AI and ML to data that can’t make it to the cloud due to data sovereignty, privacy, and/or bandwidth issues. All models created using Azure Machine Learning can now be deployed to IoT gateways and devices with the Azure IoT Edge runtime. Models are operationalized as containers and can run on many types of hardware, from very small devices all the way to powerful servers.
 
